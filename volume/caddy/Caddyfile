@@ -1,0 +1,38 @@
+{
+        email hiram.labs@gmail.com
+}
+
+hiramlabs.com {
+        respond "Maintenance in progress"
+}
+
+cdn.hiramlabs.com/public {
+        file_server browse
+}
+
+cdn.hiramlabs.com {
+        @excludeDirs {
+                not path /public
+        }
+        reverse_proxy @excludeDirs cdn:80
+}
+
+portainer.hiramlabs.com {
+        reverse_proxy portainer:9000
+}
+
+jenkins.hiramlabs.com {
+        reverse_proxy jenkins:8080
+}
+
+adminer.hiramlabs.com {
+        reverse_proxy adminer:8080
+}
+
+influxdb.hiramlabs.com {
+        reverse_proxy influxdb:8086
+}
+
+neo4j.hiramlabs.com {
+        reverse_proxy neo4j:7474
+}
