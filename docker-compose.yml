@@ -16,8 +16,23 @@ services:
       - ./volume/caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - interface
+      - database
+
 
 volumes:
   caddy_data:
   caddy_config:
+
+networks:
+  interface:
+    driver: bridge
+    name: interface
+  wg_vpn:
+    driver: bridge
+    name: wg_vpn
+  database:
+    driver: bridge
+    name: database
 
