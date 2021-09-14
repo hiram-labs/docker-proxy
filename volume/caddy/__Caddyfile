@@ -1,12 +1,8 @@
-{
-        email hiram.labs@gmail.com
-}
-
-hiramlabs.com {
+localhost {
         respond "Maintenance in progress"
 }
 
-cdn.hiramlabs.com {
+cdn.localhost {
         rewrite /public /public/
         handle_path /public/* {
                 file_server
@@ -18,11 +14,11 @@ cdn.hiramlabs.com {
         }
 }
 
-registry.hiramlabs.com {
-        handle_path /hub {
-                basicauth /v2* bcrypt {
-                        admin JDJ5JDA1JDhNZWxLUjJRQVZBNjdpa2NqbjdXUmU1ZGRHcW1wNVM0UGNPYkY5cTZVWG5aMFlrcTJwUmlx
-                }
+registry.localhost {
+        handle_path /hub/ {
+#        basicauth bcrypt {
+#                admin JDJ5JDA1JDhNZWxLUjJRQVZBNjdpa2NqbjdXUmU1ZGRHcW1wNVM0UGNPYkY5cTZVWG5aMFlrcTJwUmlx
+#        }
                 reverse_proxy registry:5000
         }
         handle {
@@ -30,22 +26,22 @@ registry.hiramlabs.com {
         }
 }
 
-portainer.hiramlabs.com {
+portainer.localhost {
         reverse_proxy portainer:9000
 }
 
-jenkins.hiramlabs.com {
+jenkins.localhost {
         reverse_proxy jenkins:8080
 }
 
-adminer.hiramlabs.com {
+adminer.localhost {
         reverse_proxy adminer:8080
 }
 
-influxdb.hiramlabs.com {
+influxdb.localhost {
         reverse_proxy influxdb:8086
 }
 
-neo4j.hiramlabs.com {
+neo4j.localhost {
         reverse_proxy neo4j:7474
 }
