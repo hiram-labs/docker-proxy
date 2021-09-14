@@ -1,0 +1,32 @@
+#!/bin/bash
+
+__ARG=$1
+
+__START_DOCKER_COMPOSE="start"
+__STOP_DOCKER_COMPOSE="stop"
+
+__START_CADDY_SHELL="cdy:shell"
+__START_CADDY_FILE_RELOAD="cdy:reload"
+__START_CADDY_FILE_FORMAT="cdy:format"
+
+if [[ "$__ARG" == "$__START_DOCKER_COMPOSE" ]]; then
+    shift
+    docker-compose up -d "$@"
+fi
+
+if [[ "$__ARG" == "$__STOP_DOCKER_COMPOSE" ]]; then
+    shift
+    docker-compose down "$@"
+fi
+
+if [[ "$__ARG" == "$__START_CADDY_SHELL" ]]; then
+    docker exec -it caddy /bin/bash --login
+fi
+
+if [[ "$__ARG" == "$__START_CADDY_FILE_RELOAD" ]]; then
+    docker exec -w /etc/caddy caddy caddy reload
+fi
+
+if [[ "$__ARG" == "$__START_CADDY_FILE_FORMAT" ]]; then
+    docker exec -w /etc/caddy caddy caddy fmt
+fi
