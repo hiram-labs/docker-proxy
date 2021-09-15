@@ -1,3 +1,7 @@
+{
+        debug
+}
+
 localhost {
         respond "Maintenance in progress"
 }
@@ -15,11 +19,12 @@ cdn.localhost {
 }
 
 registry.localhost {
-        handle_path /hub/ {
-#        basicauth bcrypt {
-#                admin JDJ5JDA1JDhNZWxLUjJRQVZBNjdpa2NqbjdXUmU1ZGRHcW1wNVM0UGNPYkY5cTZVWG5aMFlrcTJwUmlx
-#        }
-                reverse_proxy registry:5000
+        basicauth bcrypt {
+                admin JDJ5JDA1JDhNZWxLUjJRQVZBNjdpa2NqbjdXUmU1ZGRHcW1wNVM0UGNPYkY5cTZVWG5aMFlrcTJwUmlx
+        }
+        
+        handle /v2* {
+                reverse_proxy registry:5000 
         }
         handle {
                 reverse_proxy registryui:80
@@ -32,6 +37,10 @@ portainer.localhost {
 
 jenkins.localhost {
         reverse_proxy jenkins:8080
+}
+
+vscode.localhost {
+        reverse_proxy vscode:8080
 }
 
 adminer.localhost {
