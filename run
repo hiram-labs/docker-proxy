@@ -9,6 +9,9 @@ __START_CADDY_SHELL="cdy:shell"
 __START_CADDY_FILE_RELOAD="cdy:reload"
 __START_CADDY_FILE_FORMAT="cdy:format"
 
+__CURRENT_UID=$(id -u):$(id -g)
+export __CURRENT_UID
+
 if [[ "$__ARG" == "$__START_DOCKER_COMPOSE" ]]; then
     shift
     docker-compose up -d "$@"
