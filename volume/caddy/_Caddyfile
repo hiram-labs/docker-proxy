@@ -54,3 +54,7 @@ influxdb.localhost {
 neo4j.localhost {
         reverse_proxy neo4j:7474
 }
+
+cayley.localhost {
+        reverse_proxy cayley:64210
+}

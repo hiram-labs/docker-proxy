@@ -53,3 +53,7 @@ influxdb.hiramlabs.com {
 neo4j.hiramlabs.com {
         reverse_proxy neo4j:7474
 }
+
+cayley.hiramlabs.com {
+        reverse_proxy cayley:64210
+}
