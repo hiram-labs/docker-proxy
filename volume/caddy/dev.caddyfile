@@ -60,5 +60,5 @@ cayley.localhost {
 }
 
 rabbitmq.localhost {
-        reverse_proxy rabbitmq:5672
+        reverse_proxy rabbitmq:15672
 }
