@@ -58,3 +58,7 @@ neo4j.localhost {
 cayley.localhost {
         reverse_proxy cayley:64210
 }
+
+rabbitmq.localhost {
+        reverse_proxy rabbitmq:5672
+}

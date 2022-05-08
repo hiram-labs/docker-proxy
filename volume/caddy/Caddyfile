@@ -57,3 +57,7 @@ neo4j.hiramlabs.com {
 cayley.hiramlabs.com {
         reverse_proxy cayley:64210
 }
+
+rabbitmq.hiramlabs.com {
+        reverse_proxy rabbitmq:5672
+}
