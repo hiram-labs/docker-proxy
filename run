@@ -23,7 +23,7 @@ if [[ "$__ARG" == "$__STOP_DOCKER_COMPOSE" ]]; then
 fi
 
 if [[ "$__ARG" == "$__START_CADDY_SHELL" ]]; then
-    docker exec -it caddy /bin/bash --login
+    docker exec -it caddy /bin/sh --login
 fi
 
 if [[ "$__ARG" == "$__START_CADDY_FILE_RELOAD" ]]; then
