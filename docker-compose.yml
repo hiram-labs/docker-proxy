@@ -23,7 +23,7 @@ services:
     build:
       context: ./images
       dockerfile: localtunnel.dockerfile
-    command: --domain hiramlabs.com
+    command: --domain localtunnel.hiramlabs.com
     image: hiramlabs/localtunnel
     container_name: localtunnel
     restart: unless-stopped
