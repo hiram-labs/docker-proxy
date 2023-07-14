@@ -18,8 +18,21 @@ services:
       - caddy_config:/config
     networks:
       - interface
-      - database
 
+  localtunnel:
+    build:
+      context: ./images
+      dockerfile: localtunnel.dockerfile
+    command: --domain hiramlabs.com
+    image: hiramlabs/localtunnel
+    container_name: localtunnel
+    restart: unless-stopped
+    # ports:
+    #   - 9000:80
+    depends_on:
+      - caddy
+    networks:
+      - interface
 
 volumes:
   caddy_data:
@@ -35,4 +48,3 @@ networks:
   database:
     driver: bridge
     name: database
-
