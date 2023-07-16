@@ -23,7 +23,7 @@ services:
     build:
       context: ./images
       dockerfile: globaltunnel.dockerfile
-    command: --domain globaltunnel.hiramlabs.com
+    command: --secure --domain globaltunnel.hiramlabs.com
     image: hiramlabs/globaltunnel
     container_name: globaltunnel
     restart: unless-stopped
