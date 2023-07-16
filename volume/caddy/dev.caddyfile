@@ -6,7 +6,7 @@ localhost {
         respond "Maintenance in progress"
 }
 
-globaltunnel.localhost.com {
+globaltunnel.localhost {
         @http_req not header X-Websocket-Port *
         handle @http_req {
                 reverse_proxy globaltunnel:80
@@ -19,7 +19,7 @@ globaltunnel.localhost.com {
 # Requires the use of `certbot` to generate signed SSL certificates
 # A DNS-01 challenge is used to validate the certificate
 # placed certs and private key in the corresponding directory of the caddy container
-# *.globaltunnel.localhost.com {
+# *.globaltunnel.localhost {
 #         tls /etc/ssl/globaltunnel.hiramlabs.cert /etc/ssl/globaltunnel.hiramlabs.key {
 #                 resolvers ns2.digitalocean.com
 #         }
@@ -42,9 +42,8 @@ registry.localhost {
         basicauth bcrypt {
                 admin JDJ5JDA1JDhNZWxLUjJRQVZBNjdpa2NqbjdXUmU1ZGRHcW1wNVM0UGNPYkY5cTZVWG5aMFlrcTJwUmlx
         }
-        
         handle /v2* {
-                reverse_proxy registry:5000 
+                reverse_proxy registry:5000
         }
         handle {
                 reverse_proxy registryui:80
