@@ -51,10 +51,6 @@ registry.localhost {
         }
 }
 
-localtunnel.localhost.com {
-        reverse_proxy localtunnel:80
-}
-
 portainer.localhost {
         reverse_proxy portainer:9000
 }
