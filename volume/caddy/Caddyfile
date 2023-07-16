@@ -50,10 +50,6 @@ registry.hiramlabs.com {
         }
 }
 
-localtunnel.hiramlabs.com {
-        reverse_proxy localtunnel:80
-}
-
 portainer.hiramlabs.com {
         reverse_proxy portainer:9000
 }
