@@ -82,3 +82,7 @@ cayley.localhost {
 rabbitmq.localhost {
         reverse_proxy rabbitmq:15672
 }
+
+redis.localhost {
+        reverse_proxy redis:6379
+}
