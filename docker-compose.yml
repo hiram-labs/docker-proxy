@@ -19,13 +19,13 @@ services:
     networks:
       - interface
 
-  localtunnel:
+  globaltunnel:
     build:
       context: ./images
-      dockerfile: localtunnel.dockerfile
-    command: --domain localtunnel.hiramlabs.com
-    image: hiramlabs/localtunnel
-    container_name: localtunnel
+      dockerfile: globaltunnel.dockerfile
+    command: --domain globaltunnel.hiramlabs.com
+    image: hiramlabs/globaltunnel
+    container_name: globaltunnel
     restart: unless-stopped
     # ports:
     #   - 9000:80
