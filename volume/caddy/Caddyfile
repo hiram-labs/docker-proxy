@@ -81,3 +81,7 @@ cayley.hiramlabs.com {
 rabbitmq.hiramlabs.com {
         reverse_proxy rabbitmq:15672
 }
+
+redis.hiramlabs.com {
+        reverse_proxy redis:6379
+}
