@@ -1,7 +1,7 @@
 ## Networking and proxies
 
 1. caddy
-2. localtunnel
+2. globaltunnel
 3. wireguard
 
 ### Requirements
@@ -57,8 +57,8 @@ Use the `./run` shell script to execute the following commands:
 ./run cdy:fmt
 ```
 
-- get shell into localtunnel container
+- get shell into globaltunnel container
 
 ```
-./run lt:shell
+./run gt:shell
 ```
