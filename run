@@ -9,7 +9,7 @@ __START_CADDY_SHELL="cdy:shell"
 __START_CADDY_FILE_RELOAD="cdy:reload"
 __START_CADDY_FILE_FORMAT="cdy:format"
 
-__START_LOCALTUNNEL_SHELL="lt:shell"
+__START_GLOBALTUNNEL_SHELL="gt:shell"
 
 __CURRENT_UID=$(id -u):$(id -g)
 export __CURRENT_UID
@@ -36,6 +36,6 @@ if [[ "$__ARG" == "$__START_CADDY_FILE_FORMAT" ]]; then
     docker exec -w /etc/caddy caddy caddy fmt --overwrite
 fi
 
-if [[ "$__ARG" == "$__START_LOCALTUNNEL_SHELL" ]]; then
-    docker exec -it localtunnel /bin/sh --login
+if [[ "$__ARG" == "$__START_GLOBALTUNNEL_SHELL" ]]; then
+    docker exec -it globaltunnel /bin/sh --login
 fi
