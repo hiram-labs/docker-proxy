@@ -33,7 +33,7 @@ if [[ "$__ARG" == "$__START_CADDY_FILE_RELOAD" ]]; then
 fi
 
 if [[ "$__ARG" == "$__START_CADDY_FILE_FORMAT" ]]; then
-    docker exec -w /etc/caddy caddy caddy fmt --overwrite
+    docker exec -w /etc/caddy caddy caddy fmt -overwrite
 fi
 
 if [[ "$__ARG" == "$__START_GLOBALTUNNEL_SHELL" ]]; then
