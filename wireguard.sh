@@ -4,10 +4,12 @@
 # Modes:
 #   --server             Install and configure a WireGuard server
 #   --client NAME        Add a new client config (e.g. client1, phone, laptop)
+#   --rm-client NAME     Remove a client config
 #
 # Usage:
 #   sudo ./wireguard.sh --server
 #   sudo ./wireguard.sh --client client1
+#   sudo ./wireguard.sh --rm-client client1
 #
 
 set -euo pipefail
@@ -18,7 +20,7 @@ SERVER_PUB_KEY="$SERVER_WG_DIR/public.key"
 SERVER_CONF="$SERVER_WG_DIR/wg0.conf"
 
 print_usage() {
-    echo "Usage: $0 [--server | --client NAME]"
+    echo "Usage: $0 [--server | --client NAME | --rm-client NAME]"
     exit 1
 }
 
@@ -110,6 +112,39 @@ EOF
     systemctl restart wg-quick@wg0
 }
 
+remove_client() {
+    local CLIENT_NAME=$1
+    local CLIENT_PUB_KEY_FILE="$SERVER_WG_DIR/${CLIENT_NAME}_public.key"
+
+    if [[ ! -f "$CLIENT_PUB_KEY_FILE" ]]; then
+        echo "[!] Client '$CLIENT_NAME' does not exist."
+        exit 1
+    fi
+
+    local CLIENT_PUB_KEY
+    CLIENT_PUB_KEY=$(cat "$CLIENT_PUB_KEY_FILE")
+
+    echo "[*] Removing client '$CLIENT_NAME' from server config..."
+    # Backup before edit
+    cp "$SERVER_CONF" "$SERVER_CONF.bak.$(date +%s)"
+    awk -v key="$CLIENT_PUB_KEY" '
+        BEGIN {skip=0}
+        /^\[Peer\]/ {skip=0}
+        $0 ~ key {skip=1; next}
+        skip == 0 {print}
+    ' "$SERVER_CONF" > "${SERVER_CONF}.tmp" && mv "${SERVER_CONF}.tmp" "$SERVER_CONF"
+
+    echo "[*] Deleting client keys and config files..."
+    rm -f "$SERVER_WG_DIR/${CLIENT_NAME}_private.key" \
+          "$SERVER_WG_DIR/${CLIENT_NAME}_public.key" \
+          "$SERVER_WG_DIR/${CLIENT_NAME}.conf"
+
+    echo "[*] Restarting WireGuard to apply changes..."
+    systemctl restart wg-quick@wg0
+
+    echo "[*] Client '$CLIENT_NAME' removed successfully."
+}
+
 # --- main ---
 if [[ $# -lt 1 ]]; then
     print_usage
@@ -125,6 +160,13 @@ case "$1" in
             print_usage
         fi
         setup_client "$2"
+        ;;
+    --rm-client)
+        if [[ $# -ne 2 ]]; then
+            echo "Error: --rm-client requires a NAME"
+            print_usage
+        fi
+        remove_client "$2"
         ;;
     *)
         print_usage
