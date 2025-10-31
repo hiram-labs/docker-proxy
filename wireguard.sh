@@ -18,10 +18,21 @@ SERVER_WG_DIR="/etc/wireguard"
 SERVER_PRIV_KEY="$SERVER_WG_DIR/private.key"
 SERVER_PUB_KEY="$SERVER_WG_DIR/public.key"
 SERVER_CONF="$SERVER_WG_DIR/wg0.conf"
+CLIENT_IP_FILE="$SERVER_WG_DIR/clients_ip.list"
 
 print_usage() {
     echo "Usage: $0 [--server | --client NAME | --rm-client NAME]"
     exit 1
+}
+
+# --- helper to assign next available IP ---
+get_next_ip() {
+    local last_octet=2
+    if [[ -f "$CLIENT_IP_FILE" ]]; then
+        last_octet=$(awk -F. '{print $4}' "$CLIENT_IP_FILE" | sort -n | tail -1)
+        last_octet=$((last_octet + 1))
+    fi
+    echo "10.8.0.$last_octet"
 }
 
 setup_server() {
@@ -31,9 +42,8 @@ setup_server() {
 
     echo "[*] Generating server keys..."
     if [[ ! -f $SERVER_PRIV_KEY ]]; then
-        wg genkey | tee "$SERVER_PRIV_KEY"
+        wg genkey | tee "$SERVER_PRIV_KEY" | wg pubkey | tee "$SERVER_PUB_KEY"
         chmod go= "$SERVER_PRIV_KEY"
-        cat "$SERVER_PRIV_KEY" | wg pubkey | tee "$SERVER_PUB_KEY"
     else
         echo "[*] Server keys already exist, skipping."
     fi
@@ -77,18 +87,21 @@ setup_client() {
     local CLIENT_CONF="$SERVER_WG_DIR/${CLIENT_NAME}.conf"
 
     echo "[*] Generating client keys for $CLIENT_NAME..."
-    wg genkey | tee "$CLIENT_PRIV_KEY"
+    wg genkey | tee "$CLIENT_PRIV_KEY" | wg pubkey | tee "$CLIENT_PUB_KEY"
     chmod go= "$CLIENT_PRIV_KEY"
-    cat "$CLIENT_PRIV_KEY" | wg pubkey | tee "$CLIENT_PUB_KEY"
+
+    CLIENT_IP=$(get_next_ip)
+    echo "$CLIENT_IP" >> "$CLIENT_IP_FILE"
 
     echo "[*] Adding client $CLIENT_NAME to server config..."
     cat >> "$SERVER_CONF" <<EOF
 [Peer]
 PublicKey = $(cat "$CLIENT_PUB_KEY")
-AllowedIPs = 10.8.0.$((RANDOM % 200 + 2))/32
+AllowedIPs = $CLIENT_IP/32
 EOF
 
-    CLIENT_IP="10.8.0.$((RANDOM % 200 + 2))"
+    # Live add peer without full restart
+    wg set wg0 peer $(cat "$CLIENT_PUB_KEY") allowed-ips $CLIENT_IP/32
 
     echo "[*] Creating client config..."
     cat > "$CLIENT_CONF" <<EOF
@@ -107,9 +120,6 @@ EOF
     echo "[*] Client config for $CLIENT_NAME created at $CLIENT_CONF"
     echo "[*] QR code for mobile import:"
     qrencode -t ansiutf8 < "$CLIENT_CONF"
-
-    echo "[*] Restarting WireGuard to apply changes..."
-    systemctl restart wg-quick@wg0
 }
 
 remove_client() {
@@ -125,7 +135,6 @@ remove_client() {
     CLIENT_PUB_KEY=$(cat "$CLIENT_PUB_KEY_FILE")
 
     echo "[*] Removing client '$CLIENT_NAME' from server config..."
-    # Backup before edit
     cp "$SERVER_CONF" "$SERVER_CONF.bak.$(date +%s)"
     awk -v key="$CLIENT_PUB_KEY" '
         BEGIN {skip=0}
@@ -134,13 +143,16 @@ remove_client() {
         skip == 0 {print}
     ' "$SERVER_CONF" > "${SERVER_CONF}.tmp" && mv "${SERVER_CONF}.tmp" "$SERVER_CONF"
 
+    # Live remove peer
+    wg set wg0 peer "$CLIENT_PUB_KEY" remove
+
     echo "[*] Deleting client keys and config files..."
     rm -f "$SERVER_WG_DIR/${CLIENT_NAME}_private.key" \
           "$SERVER_WG_DIR/${CLIENT_NAME}_public.key" \
           "$SERVER_WG_DIR/${CLIENT_NAME}.conf"
 
-    echo "[*] Restarting WireGuard to apply changes..."
-    systemctl restart wg-quick@wg0
+    # Remove IP from clients list
+    grep -v "$(grep "$CLIENT_PUB_KEY" "$CLIENT_IP_FILE" || echo '')" "$CLIENT_IP_FILE" > "${CLIENT_IP_FILE}.tmp" && mv "${CLIENT_IP_FILE}.tmp" "$CLIENT_IP_FILE"
 
     echo "[*] Client '$CLIENT_NAME' removed successfully."
 }
