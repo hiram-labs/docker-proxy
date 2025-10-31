@@ -29,6 +29,7 @@ print_usage() {
 get_next_ip() {
     local last_octet=2
     if [[ -f "$CLIENT_IP_FILE" ]]; then
+        # Avoid duplicate IPs
         last_octet=$(awk -F. '{print $4}' "$CLIENT_IP_FILE" | sort -n | tail -1)
         last_octet=$((last_octet + 1))
     fi
@@ -40,10 +41,14 @@ setup_server() {
     apt update -y
     apt install -y wireguard qrencode ufw
 
+    echo "[*] Creating WireGuard directory if missing..."
+    mkdir -p "$SERVER_WG_DIR"
+    chmod 700 "$SERVER_WG_DIR"
+
     echo "[*] Generating server keys..."
     if [[ ! -f $SERVER_PRIV_KEY ]]; then
         wg genkey | tee "$SERVER_PRIV_KEY" | wg pubkey | tee "$SERVER_PUB_KEY"
-        chmod go= "$SERVER_PRIV_KEY"
+        chmod 600 "$SERVER_PRIV_KEY"
     else
         echo "[*] Server keys already exist, skipping."
     fi
@@ -86,14 +91,19 @@ setup_client() {
     local CLIENT_PUB_KEY="$SERVER_WG_DIR/${CLIENT_NAME}_public.key"
     local CLIENT_CONF="$SERVER_WG_DIR/${CLIENT_NAME}.conf"
 
+    echo "[*] Creating WireGuard directory if missing..."
+    mkdir -p "$SERVER_WG_DIR"
+    chmod 700 "$SERVER_WG_DIR"
+
     echo "[*] Generating client keys for $CLIENT_NAME..."
     wg genkey | tee "$CLIENT_PRIV_KEY" | wg pubkey | tee "$CLIENT_PUB_KEY"
-    chmod go= "$CLIENT_PRIV_KEY"
+    chmod 600 "$CLIENT_PRIV_KEY"
 
     CLIENT_IP=$(get_next_ip)
     echo "$CLIENT_IP" >> "$CLIENT_IP_FILE"
 
     echo "[*] Adding client $CLIENT_NAME to server config..."
+    cp "$SERVER_CONF" "$SERVER_CONF.bak.$(date +%s)"
     cat >> "$SERVER_CONF" <<EOF
 [Peer]
 PublicKey = $(cat "$CLIENT_PUB_KEY")
@@ -152,7 +162,9 @@ remove_client() {
           "$SERVER_WG_DIR/${CLIENT_NAME}.conf"
 
     # Remove IP from clients list
-    grep -v "$(grep "$CLIENT_PUB_KEY" "$CLIENT_IP_FILE" || echo '')" "$CLIENT_IP_FILE" > "${CLIENT_IP_FILE}.tmp" && mv "${CLIENT_IP_FILE}.tmp" "$CLIENT_IP_FILE"
+    if [[ -f "$CLIENT_IP_FILE" ]]; then
+        grep -v "$CLIENT_NAME" "$CLIENT_IP_FILE" > "${CLIENT_IP_FILE}.tmp" && mv "${CLIENT_IP_FILE}.tmp" "$CLIENT_IP_FILE"
+    fi
 
     echo "[*] Client '$CLIENT_NAME' removed successfully."
 }
