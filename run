@@ -11,6 +11,8 @@ __START_CADDY_FILE_FORMAT="cdy:format"
 
 __START_GLOBALTUNNEL_SHELL="gt:shell"
 
+__START_DYNDNS_SHELL="dyndns:shell"
+
 __CURRENT_UID=$(id -u):$(id -g)
 export __CURRENT_UID
 
@@ -38,4 +40,8 @@ fi
 
 if [[ "$__ARG" == "$__START_GLOBALTUNNEL_SHELL" ]]; then
     docker exec -it globaltunnel /bin/sh --login
+fi
+
+if [[ "$__ARG" == "$__START_DYNDNS_SHELL" ]]; then
+    docker exec -it dyndns /bin/sh --login
 fi

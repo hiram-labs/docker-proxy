@@ -17,6 +17,18 @@ services:
     networks:
       - interface
 
+  dyndns:
+    build:
+      context: .
+      dockerfile: images/dyndns.dockerfile
+    image: hiramlabs/dyndns
+    container_name: dyndns
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - interface
+
   globaltunnel:
     build:
       context: ./images
