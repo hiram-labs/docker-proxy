@@ -8,6 +8,6 @@ COPY scripts/dyndns.sh .
 
 RUN chmod +x dyndns.sh
 
-RUN echo "0 * * * * /app/dyndns.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+RUN echo "*/5 * * * * /app/dyndns.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
 
 CMD ["crond", "-f", "-d", "8"]

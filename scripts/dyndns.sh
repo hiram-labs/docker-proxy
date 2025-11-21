@@ -18,6 +18,7 @@ set -eu
 API="https://api.name.com/v4"
 LOG_TAG="[dyndns]"
 CURL="curl -sS --fail"
+CACHE_FILE="/tmp/dyndns_last_ip"
 
 # Hard-coded A records to maintain
 RECORDS=(
@@ -49,6 +50,21 @@ get_public_ip() {
     IP=$($CURL -4 ifconfig.me || true)
     [ -z "$IP" ] && fatal "Unable to retrieve public IPv4 address"
     echo "$IP"
+}
+
+check_cached_ip() {
+    if [ -f "$CACHE_FILE" ]; then
+        LAST_IP=$(cat "$CACHE_FILE")
+        if [ "$LAST_IP" = "$1" ]; then
+            log "IP unchanged from cache ($1). Skipping Name.com API calls."
+            exit 0
+        fi
+    fi
+}
+
+update_cache() {
+    echo "$1" > "$CACHE_FILE"
+    log "Local IP cache updated."
 }
 
 fetch_records() {
@@ -128,12 +144,16 @@ main() {
     PUBLIC_IP=$(get_public_ip)
     log "Detected public IPv4: $PUBLIC_IP"
 
+    check_cached_ip "$PUBLIC_IP"
+
     RECORDS_JSON=$(fetch_records)
 
     for HOST in "${RECORDS[@]}"; do
         log "Processing host='$HOST'…"
         process_record "$HOST" "$PUBLIC_IP" "$RECORDS_JSON"
     done
+
+    update_cache "$PUBLIC_IP"
 
     log "All records processed."
 }

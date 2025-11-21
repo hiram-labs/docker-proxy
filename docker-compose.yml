@@ -25,7 +25,7 @@ services:
     container_name: dyndns
     restart: unless-stopped
     env_file:
-      - .env
+      - .secret.env
     networks:
       - interface
 
