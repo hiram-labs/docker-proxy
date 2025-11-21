@@ -24,7 +24,7 @@ CACHE_FILE="/tmp/dyndns_last_ip"
 RECORDS=(
   "@"
   "www"
-  "*"
+  "*.metal"
 )
 
 log() {
