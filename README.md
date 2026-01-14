@@ -3,6 +3,7 @@
 1. caddy
 2. globaltunnel
 3. wireguard
+4. dyndns
 
 ### Requirements
 
