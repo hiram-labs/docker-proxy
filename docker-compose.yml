@@ -10,7 +10,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ~/cdn/public:/srv
+      - ${HOME}/cdn/public:/srv
       - ./volume/caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
