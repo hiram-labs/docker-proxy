@@ -30,8 +30,15 @@ cdn.hiramlabs.com {
         rewrite /public /public/
         handle_path /public/* {
                 file_server
+
+                header {
+                        Access-Control-Allow-Origin *
+                }
         }
         handle {
+                basicauth bcrypt {
+                        admin JDJ5JDA1JDhNZWxLUjJRQVZBNjdpa2NqbjdXUmU1ZGRHcW1wNVM0UGNPYkY5cTZVWG5aMFlrcTJwUmlx
+                }
                 reverse_proxy cdn:80 {
                         header_up X-Cdn-Username admin
                 }
